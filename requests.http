@@ -1,0 +1,13 @@
+### TESTE HTTP
+
+//GET http://localhost:3000/login
+
+
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+ "usuario":  "jonas@jonas.com",
+ "senha" : "jonera"
+}
+
