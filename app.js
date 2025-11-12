@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 
 
 //Funcão de validação de e-mail no padrao xxxxx@xxxx.com
-function validarEmail(email){
+function validateEmail(email){
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
@@ -15,64 +15,99 @@ function validarEmail(email){
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//Banco de dados local na memória
-const usuarios = [];
+//Banco de dados:
+/* const { Pool } = require("pg");
+
+const pool = new Pool({
+    user: "jonasemerick@icloud.com",
+    host: "",
+    database: "",
+    password: "",
+    port: 5432,
+    ssl: true
+
+}) */
+
+const userList = [];
 
 //Forma get de pegar login
 //app.get('/login', function(req, res) {
     //const usuario = req.query.usuario;
-    //const senha = req.query.senha;
+    //const pass = req.query.pass;
 
 //Forma post(mais segura) de pegar login
 app.post("/login", async(req, res) => {
-    const {usuario, senha} = req.body;
+    const {email, pass} = req.body;
 
 //Verificação de dados de login:
-    const login = usuarios.find(dadoArmazenado => dadoArmazenado.usuario === usuario)
-    if(!login){
-        return res.status(200).json({mensagem: 'Login ou senha inválidos!'});
+
+//se ambos estiverem preenchidos fazer um select para trazer o usuário do banco de dados
+
+//Verificar se os dados abaixo estão vazios:
+const login = userList.find(user => user.email === email);
+
+    if(!login || !pass){
+        return res.status(400).json({error: 'Login ou senha inválidos!'})
+    }
+
+    const criptoPass = await bcrypt.compare(pass, login.pass);
+
+    if(login && criptoPass){
+        return res.status(200).json({message: 'Login realizado com sucesso!'});
 
     }
-    const senhaCriptografada = await bcrypt.compare(senha, login.senha);
-    if (!senhaCriptografada){
-        return res.status(400).json({erro: 'Login ou senha inválidos!'});
-    }
-    
-    return res.status(200).json({mensagem: 'Login realizado com sucesso!'});
+        return res.status(400).json({error: 'Login ou senha inválidos!'});
 });
 
-app.post("/registrar", async(req, res) => {
-    const {usuario, senha} = req.body;
+app.post("/register", async(req, res) => {
+    const {email, pass} = req.body;
 
 
 // Verificação de dados de registro:
 
-    if(!usuario || !senha){
-        return res.status(400).json({erro: 'É necessaŕio preencher todos os campos!'});
-    }else if(senha.length < 6){
-         return res.status(400).json({erro: 'A senha não pode ter menos de 6 digitos!'});
-    }else if(!validarEmail(usuario)){  
-        return res.status(400).json({erro: 'E-mail invalido!'});  
+    if(!email || !pass){
+        return res.status(400).json({error: 'É necessaŕio preencher todos os campos!'});
+
+    }else if(pass.length < 6){
+         return res.status(400).json({error: 'A pass não pode ter menos de 6 digitos!'});
+
+    }else if(!validateEmail(email)){  
+        return res.status(400).json({error: 'E-mail invalido!'});  
 
     }
 
     //Verificação se o usuário existe no banco de dados:
-    const existente = usuarios.find(dadoArmazenado => dadoArmazenado.usuario === usuario);
-    if (existente){
-        return res.status(400).json({erro: 'Usuário já cadastrado!'})
+    const emailExistente = userList.find(user => user.email === email);
+    if (emailExistente){
+        return res.status(200).json({error: 'Usuário já cadastrado!'});
     }
 
     //Incluir usuário no banco de dados:
-    const senhaCriptografada = await bcrypt.hash(senha,10);
-    usuarios.push({usuario, senha: senhaCriptografada});
-    return res.status(200).json({mensagem: 'Cadastro realizado!'});
+    const criptoPass = await bcrypt.hash(pass,10);
+    userList.push({email, pass: criptoPass});
+    return res.status(200).json({message: 'Cadastro realizado!'});
 
     
 
 });
 
-app.get("/usuarios", (req, res) => {
-  return res.json(usuarios);
+//Alterar pass
+app.put('/register', async(req, res) => {
+    const {email, pass} = req.body;
+    const aUser = userList.filter(user => user.email);
+
+    if(aUser.length){
+email
+        const criptoPass = await bcrypt.hash(pass,10);
+        userList[aUser.length - 1].pass = criptoPass;
+        return res.status(200).json({message: 'Alteração de senha realizada!'});
+
+    }
+
+})
+
+app.get("/user", (req, res) => {
+  return res.json(userList);
 });
 
 http.createServer(app).listen(port, () => console.log("Servidor rodando local na porta 3000"));

@@ -1,13 +1,47 @@
-### TESTE HTTP
+### TESTE DE ROTAS DE LOGIN E REGISTRO
 
-//GET http://localhost:3000/login
+@baseUrl = http://localhost:3000
+@contentType = application/json
 
-
-POST http://localhost:3000/login
-Content-Type: application/json
+### LOGIN
+# Realiza o login do usuário
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
 
 {
- "usuario":  "jonas@jonas.com",
- "senha" : "jonera"
+  "email": "jonas@jonas.com",
+  "pass": "123456"
 }
 
+### REGISTRO
+# Cria um novo usuário
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "jonas@jonas.com",
+  "pass": "123456"
+}
+
+
+
+### ATUALIZAR USUÁRIO
+# Atualiza os dados de um usuário existente
+PUT {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "email": "jonas@jonas.com",
+  "pass": "ovaSenho"
+}
+/*
+### LISTAR USUÁRIOS
+# Retorna todos os usuários cadastrados
+GET {{baseUrl}}/register
+Accept: {{contentType}}
+
+### EXCLUIR USUÁRIO
+# Remove um usuário específico
+DELETE {{baseUrl}}/register/1
+Accept: {{contentType}}
+*/
