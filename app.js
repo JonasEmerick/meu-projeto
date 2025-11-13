@@ -94,20 +94,81 @@ app.post("/register", async(req, res) => {
 //Alterar pass
 app.put('/register', async(req, res) => {
     const {email, pass} = req.body;
-    const aUser = userList.filter(user => user.email);
+    const aUser = userList.findIndex(user => user.email === email);
 
-    if(aUser.length){
-email
+    if(aUser){
         const criptoPass = await bcrypt.hash(pass,10);
-        userList[aUser.length - 1].pass = criptoPass;
+        userList[aUser].pass = criptoPass;
         return res.status(200).json({message: 'Alteração de senha realizada!'});
 
     }
 
-})
+});
 
-app.get("/user", (req, res) => {
+app.get("/user", function(req, res) {
   return res.json(userList);
 });
 
+//Banco de dados de Tasks
+
+const taskList = [];
+
+//Inclusão no banco da task
+
+app.post("/task" , function(req , res) {
+    const {id, title, description, status} = req.body;
+    const idExist = taskList.find(task => task.id === id);
+    if(!idExist){
+        if(!id || !title || !description || !status){
+            return res.status(400).json({error: 'É necessário preencher todos os campos!'})
+
+
+        }
+            taskList.push({id, title, description, status});
+            return res.status(200).json({message: 'Task cadastrada!'});
+    }
+    res.status(400).json({error: 'ID já cadastrado!'})
+});
+//Alterar o Status da Task
+app.put('/task', function(req, res) {
+    const {id, title, description, status} = req.body;
+    const aTaskList = taskList.findIndex(task => task.id === id);
+    //Alterar o status da task:
+    if(aTaskList){
+
+        taskList[aTaskList].status = status;
+        taskList[aTaskList].title = title;
+        taskList[aTaskList].description = description;
+        return res.status(200).json({message: 'Dados da task alterados!'});
+    }
+    return res.status(400).json({error: 'Task não encontrada!'});
+    
+});
+
+//Deletar uma task
+app.delete('/task/:id', function(req, res) {
+    const id = req.params.id;
+    const aTaskList = taskList.findIndex(task => task.id === id);
+    if(aTaskList){
+        const deleteTask = taskList.splice(aTaskList, 1);
+        return res.status(200).json({message: `A task com id  ${id} foi excluído!`});
+
+    }
+    return res.status(400).json({error: 'Task não encontrada!'});
+
+
+});
+
+
+
+//Listar as tasks
+app.get("/task", function (req, res) {
+   return res.json (taskList);
+
+});
+
+
+
 http.createServer(app).listen(port, () => console.log("Servidor rodando local na porta 3000"));
+
+

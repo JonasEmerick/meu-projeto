@@ -19,7 +19,7 @@ POST {{baseUrl}}/register
 Content-Type: {{contentType}}
 
 {
-  "email": "jonas@jonas.com",
+  "email": "jonas@joner.com",
   "pass": "123456"
 }
 
@@ -31,17 +31,38 @@ PUT {{baseUrl}}/register
 Content-Type: {{contentType}}
 
 {
-  "email": "jonas@jonas.com",
-  "pass": "ovaSenho"
+  "email": "jonas@joner.com",
+  "pass": "ovaSenhoee"
 }
-/*
-### LISTAR USUÁRIOS
-# Retorna todos os usuários cadastrados
-GET {{baseUrl}}/register
-Accept: {{contentType}}
 
-### EXCLUIR USUÁRIO
-# Remove um usuário específico
-DELETE {{baseUrl}}/register/1
-Accept: {{contentType}}
-*/
+###CADASTRAR TASK
+POST {{baseUrl}}/task
+Content-Type: {{contentType}}
+
+{
+  "id": "1",
+  "title": "Teste",
+  "description": "Teste",
+  "status": "andamento"
+}
+
+###ALTERAR DADOS DA TASK
+PUT {{baseUrl}}/task
+Content-Type: {{contentType}}
+
+{
+  "id": "3",
+  "title": "Teste1",
+  "description": "Teste2",
+  "status": "CONCLUÍDO"
+}
+
+###DELETAR TASKS
+
+DELETE {{baseUrl}}/task/3
+Content-Type: {{contentType}}
+
+
+
+
+
