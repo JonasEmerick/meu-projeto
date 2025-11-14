@@ -37,7 +37,7 @@ const userList = [];
 
 //Forma post(mais segura) de pegar login
 app.post("/login", async(req, res) => {
-    const {email, pass} = req.body;
+    const {email, pass, id} = req.body;
 
 //Verificação de dados de login:
 
@@ -60,7 +60,7 @@ const login = userList.find(user => user.email === email);
 });
 
 app.post("/register", async(req, res) => {
-    const {email, pass} = req.body;
+    const {email, pass, user_id} = req.body;
 
 
 // Verificação de dados de registro:
@@ -77,14 +77,15 @@ app.post("/register", async(req, res) => {
     }
 
     //Verificação se o usuário existe no banco de dados:
-    const emailExistente = userList.find(user => user.email === email);
-    if (emailExistente){
+    const userExist = userList.find(user => user.user_id === user_id && user.email === email);
+
+    if (userExist){
         return res.status(200).json({error: 'Usuário já cadastrado!'});
     }
 
     //Incluir usuário no banco de dados:
     const criptoPass = await bcrypt.hash(pass,10);
-    userList.push({email, pass: criptoPass});
+    userList.push({user_id ,email, pass: criptoPass});
     return res.status(200).json({message: 'Cadastro realizado!'});
 
     
@@ -92,9 +93,9 @@ app.post("/register", async(req, res) => {
 });
 
 //Alterar pass
-app.put('/register', async(req, res) => {
-    const {email, pass} = req.body;
-    const aUser = userList.findIndex(user => user.email === email);
+app.put("/register", async(req, res) => {
+    const {email, pass, id} = req.body;
+    const aUser = userList.findIndex(user => user.id === id);
 
     if(aUser){
         const criptoPass = await bcrypt.hash(pass,10);
@@ -113,42 +114,48 @@ app.get("/user", function(req, res) {
 
 const taskList = [];
 
-//Inclusão no banco da task
+//Inclusão no banco da tasks
 
-app.post("/task" , function(req , res) {
-    const {id, title, description, status} = req.body;
-    const idExist = taskList.find(task => task.id === id);
-    if(!idExist){
-        if(!id || !title || !description || !status){
+app.post("/user/:user_id/tasks/" , function(req , res) {
+    const user_id = req.params.user_id;
+    const {task_id, title, description, status} = req.body;
+    const taskExist = taskList.find(tasks => tasks.task_id === task_id && tasks.user_id === user_id);
+    if(!taskExist){
+        if(!task_id || !title || !description || !status){
             return res.status(400).json({error: 'É necessário preencher todos os campos!'})
 
 
         }
-            taskList.push({id, title, description, status});
+            taskList.push({user_id ,task_id, title, description, status});
             return res.status(200).json({message: 'Task cadastrada!'});
     }
     res.status(400).json({error: 'ID já cadastrado!'})
 });
-//Alterar o Status da Task
-app.put('/task', function(req, res) {
+//Alterar o Status da tasks
+app.put("/user/:user_id/tasks/:task_id", function(req, res) {
     const {id, title, description, status} = req.body;
-    const aTaskList = taskList.findIndex(task => task.id === id);
-    //Alterar o status da task:
+    const userId = req.params.user_id;
+    const userIdExist = userList.firndIndex(user => user.id === userId)
+    const aTaskList = taskList.findIndex(tasks => tasks.id === id);
+    //Alterar o status da tasks:
+    if(userIdExist){
     if(aTaskList){
 
         taskList[aTaskList].status = status;
         taskList[aTaskList].title = title;
         taskList[aTaskList].description = description;
-        return res.status(200).json({message: 'Dados da task alterados!'});
+        return res.status(200).json({message: 'Dados da tasks alterados!'});
     }
     return res.status(400).json({error: 'Task não encontrada!'});
-    
+    }
+    return res.status(200).json({error: 'Id não localizado!'})
+
 });
 
-//Deletar uma task
-app.delete('/task/:id', function(req, res) {
-    const id = req.params.id;
-    const aTaskList = taskList.findIndex(task => task.id === id);
+//Deletar uma tasks
+app.delete("/user/:user_id/tasks/:task_id", function(req, res) {
+    const {userId, taskId} = req.params;
+    const aTaskList = taskList.findIndex(tasks => tasks.id === taskId);
     if(aTaskList){
         const deleteTask = taskList.splice(aTaskList, 1);
         return res.status(200).json({message: `A task com id  ${id} foi excluído!`});
@@ -159,13 +166,26 @@ app.delete('/task/:id', function(req, res) {
 
 });
 
+//Pegar tasks
+app.get("/user/:user_id/tasks/:task_id", function(req, res){
+    const {user_id, task_id} = req.params;
+    const taskIndex = taskList.findIndex(task => task.user_id === user_id && task.task_id === task_id);
+
+    if(taskIndex>=0){
+        return res.status(200).json ({message: taskList[taskIndex]});
+    }
+    return res.status(400).json({error: 'Task não localizada!'});
+
+});
 
 
 //Listar as tasks
-app.get("/task", function (req, res) {
+app.get("/tasks", function (req, res) {
    return res.json (taskList);
 
 });
+
+app.get("")
 
 
 

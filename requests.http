@@ -19,7 +19,8 @@ POST {{baseUrl}}/register
 Content-Type: {{contentType}}
 
 {
-  "email": "jonas@joner.com",
+  "user_id": "2",
+  "email": "jonas@jonera.com",
   "pass": "123456"
 }
 
@@ -35,19 +36,22 @@ Content-Type: {{contentType}}
   "pass": "ovaSenhoee"
 }
 
-###CADASTRAR TASK
-POST {{baseUrl}}/task
+########TASKS#########
+
+###CADASTRAR TASKS
+POST {{baseUrl}}/user/1/tasks
 Content-Type: {{contentType}}
 
 {
-  "id": "1",
+  
+  "task_id": "1",
   "title": "Teste",
   "description": "Teste",
   "status": "andamento"
 }
 
-###ALTERAR DADOS DA TASK
-PUT {{baseUrl}}/task
+###ALTERAR DADOS DA TASKS
+PUT {{baseUrl}}/tasks
 Content-Type: {{contentType}}
 
 {
@@ -57,9 +61,18 @@ Content-Type: {{contentType}}
   "status": "CONCLUÍDO"
 }
 
+###CONSULTAR TASKS ESPECIFICAS
+
+GET {{baseUrl}}/user/2/tasks/1
+Content-Type: {{contentType}}
+
+{
+}
+
+
 ###DELETAR TASKS
 
-DELETE {{baseUrl}}/task/3
+DELETE {{baseUrl}}/tasks/3
 Content-Type: {{contentType}}
 
 
