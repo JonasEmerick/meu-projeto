@@ -43,7 +43,7 @@ app.post('/register', async (req, res) => {
 
     const loginExist = await execSQLQuery('SELECT * FROM users WHERE email=' + email);
 
-    if (loginExist) {
+    if (!loginExist.length) {
         return res.status(400).json({ error: 'E-mail já cadastrado!' });
     }
 
@@ -142,6 +142,7 @@ app.put('/tasks/:id', async (req, res) => {
         return res.status(400).json({ error: 'ID da tarefa não informado!' })
     }
     const { name, priority, status, created_at, completed_at } = req.body;
+
     const taskExist = await execSQLQuery(`SELECT * FROM tasks WHERE id=${taskId}`);
  
     if (!taskExist.length) {
@@ -167,7 +168,7 @@ app.delete('/tasks/:id', async (req, res) => {
 
     await execSQLQuery(`DELETE tasks WHERE id=${taskId}`);
 
-    return res.status(200).json({ response: 'Task deletada!' });
+    return res.status(200).json({ response: 'Task deletada!' });    
 })
 
 
