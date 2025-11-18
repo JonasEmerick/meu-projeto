@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const bcrypt = require("bcrypt");
-const { getPool } = require('./connection')
+const { getPool } = require('./connection');
 
 
 
@@ -48,26 +48,25 @@ app.post('/register', async (req, res) => {
     }
 
     await execSQLQuery(`INSERT INTO users(email, pass) VALUES('${email}','${pass}')`)
+
     res.status(200).json({ message: 'Dados de login inseridos!' });
 });
 
 
 //Consultar login para acesso
 
-app.get('/login/:id', async (req, res) => {
-    const id = req.params.id;
+app.get('/login', async (req, res) => {
+
     const { email, pass } = req.body;
-    if (!id) {
-        return res.status(400).json({ error: 'ID não informado.' });
-    }
-    const idExist = await execSQLQuery('SELECT * FROM users WHERE id=' + id);
-    if (!idExist.length) {
-        return res.status(400).json({ error: 'ID não existe' });
-    }
+
     const userExist = await execSQLQuery(`SELECT * FROM user WHERE id=${id} AND email=${email} AND pass=${pass}`);
+
     if (!userExist.length) {
-        return res.status(400).json({ error: 'Login ou senha inválidos!' })
+
+        return res.status(400).json({ error: 'Login ou senha inválidos!' });
+
     }
+
     return res.status(200).json({ message: 'Login realizado!' });
 });
 
@@ -76,18 +75,28 @@ app.get('/login/:id', async (req, res) => {
 app.put('/login/:id', async (req, res) => {
     const id = req.params;
     const { email, newPass } = req.body;
+
     if (!id) {
-        return res.status(400).json({ error: 'Id não informado.' });
+
+        return res.status(400).json({ error: 'ID não informado.' });
+
     }
     const idExist = await execSQLQuery(`SELECT * FROM users WHERE id=${id}`);
+
     if (!idExist.length) {
-        return res.status(400).json({ error: 'Id não encontrado!' });
+
+        return res.status(400).json({ error: 'ID não encontrado!' });
+
     }
     const userExist = await execSQLQuery(`SELECT * FROM users WHERE id=${id} AND email=${email}`);
+
     if (!userExist.length) {
+
         return res.status(400).json({ error: 'Email não encontrado!' })
     }
+
     await execSQLQuery(`UPDATE users SET pass= ${newPass} WHERE id=${id}`);
+
     return res.status(200).json({ message: 'Senha atualizada!' });
 });
 
@@ -96,26 +105,33 @@ app.put('/login/:id', async (req, res) => {
 app.get('/tasks', async (req, res) => {
     const { user_id } = req.query;
     const aTasks = await execSQLQuery(`SELECT * FROM tasks WHERE user_id=${user_id}`);
-    if (!aTasks) {
-        return res.status(400).json({ error: 'Id sem tasks!' });
+
+    if (!aTasks.length) {
+
+        return res.status(400).json({ error: 'Usuário não possuí tarefas!' });
+
     }
+
     return res.status(200).json(aTasks);
 
 });
 
+//Criar tarefas
 
 app.post('/tasks', async (req, res) => {
-    const { user_id, name, priority, status, created_at, completed_at } = req.body;
+    const { user_id, name, priority, status, completed_at } = req.body;
 
     if (!user_id) {
-        return res.status(400).json({ error: 'Id user não informado!' })
+        return res.status(400).json({ error: 'ID user não informado!' });
     }
-    await execSQLQuery(`INSERT INTO tasks(user_id, name, priority, status, created_at, completed_at) VALUES (${user_id},'${name}',
-        '${priority}', '${status}', '${created_at}', '${completed_at}')`);
-    res.status(200).json({ message: 'Tasks incluida com sucesso' });
 
-
-
+    const created_at = new Date();
+    
+    await execSQLQuery(`
+        INSERT INTO tasks(user_id, name, priority, status, created_at, completed_at) 
+        VALUES (${user_id},'${name}','${priority}', '${status}', '${created_at}', '${completed_at}')`);
+        
+    res.status(200).json({ message: 'Task incluida com sucesso' });
 });
 
 //Alterar dados da task
@@ -123,16 +139,18 @@ app.post('/tasks', async (req, res) => {
 app.put('/tasks/:id', async (req, res) => {
     const taskId = req.params.id;
     if (!taskId) {
-        return res.status(400).json({ error: 'Id não informado!' })
+        return res.status(400).json({ error: 'ID da tarefa não informado!' })
     }
-    const { user_id, name, priority, status, created_at, completed_at } = req.body;
-    const taskExist = await execSQLQuery(`SELECT * FROM [tasks] WHERE user_id=${user_id} AND id=${taskId}`);
-    console.log(`SELECT * FROM [tasks] WHERE user_id=${user_id} AND id=${taskId}`)
+    const { name, priority, status, created_at, completed_at } = req.body;
+    const taskExist = await execSQLQuery(`SELECT * FROM tasks WHERE id=${taskId}`);
+ 
     if (!taskExist.length) {
         return res.status(400).json({ error: 'Task não encontrada!' });
     }
-    await execSQLQuery(`UPDATE [tasks] SET name='${name}', priority='${priority}', 
-        status='${status}', created_at='${created_at}', completed_at='${completed_at}' WHERE id=${taskId} AND user_id=${user_id}`);
+    await execSQLQuery(`
+        UPDATE tasks
+        SET name='${name}', priority='${priority}', status='${status}', created_at='${created_at}', completed_at='${completed_at}' 
+        WHERE id=${taskId}`);
 
     return res.status(200).json({ message: 'Dados atualizados!' });
 });
@@ -142,11 +160,13 @@ app.put('/tasks/:id', async (req, res) => {
 
 app.delete('/tasks/:id', async (req, res) => {
     const taskId = req.params.id;
+
     if (!taskId) {
-        return res.status(400).json({ error: 'Id não inserido' });
+        return res.status(400).json({ error: 'ID das tarefas não encontrado' });
     }
-    const user_id = req.body.user_id;
-    await execSQLQuery(`DELETE [tasks] WHERE user_id=${user_id} AND id=${taskId}`);
+
+    await execSQLQuery(`DELETE tasks WHERE id=${taskId}`);
+
     return res.status(200).json({ response: 'Task deletada!' });
 })
 
