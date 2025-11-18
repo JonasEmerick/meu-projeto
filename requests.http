@@ -4,7 +4,11 @@
 @contentType = application/json
 
 ### LOGIN
-# Realiza o login do usuário
+# Consulta login
+GET {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+#####
 POST {{baseUrl}}/login
 Content-Type: {{contentType}}
 
@@ -38,42 +42,48 @@ Content-Type: {{contentType}}
 
 ########TASKS#########
 
+###CONSULTAR TASKS POR ID
+GET {{baseUrl}}/tasks?user_id=1
+Content-Type: {{contentType}}
+
+
 ###CADASTRAR TASKS
-POST {{baseUrl}}/user/1/tasks
+POST {{baseUrl}}/tasks
 Content-Type: {{contentType}}
 
 {
-  
-  "task_id": "1",
-  "title": "Teste",
-  "description": "Teste",
-  "status": "andamento"
+    "user_id": "1",
+    "name": "Nova Tarefa Teste",
+    "priority": "Média",
+    "status": "Concluído",
+    "created_at": "2025-11-14T03:10:53.555Z",
+    "completed_at": ""
 }
 
 ###ALTERAR DADOS DA TASKS
-PUT {{baseUrl}}/tasks
+PUT {{baseUrl}}/tasks/2
 Content-Type: {{contentType}}
 
 {
-  "id": "3",
-  "title": "Teste1",
-  "description": "Teste2",
-  "status": "CONCLUÍDO"
-}
-
-###CONSULTAR TASKS ESPECIFICAS
-
-GET {{baseUrl}}/user/2/tasks/1
-Content-Type: {{contentType}}
-
-{
+    "user_id": "1",
+    "name": "Alteração",
+    "priority": "Alta",
+    "status": "Reaberto",
+    "created_at": "2025-11-14T03:10:53.555Z",
+    "completed_at": ""
 }
 
 
 ###DELETAR TASKS
 
-DELETE {{baseUrl}}/tasks/3
+DELETE {{baseUrl}}/tasks/11
 Content-Type: {{contentType}}
+
+{
+
+    "user_id": "1"
+}
+
 
 
 
