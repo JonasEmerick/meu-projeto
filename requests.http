@@ -8,42 +8,32 @@
 GET {{baseUrl}}/login
 Content-Type: {{contentType}}
 
-#####
-POST {{baseUrl}}/login
-Content-Type: {{contentType}}
-
-{
-  "email": "jonas@jonas.com",
-  "pass": "123456"
-}
-
 ### REGISTRO
 # Cria um novo usuário
 POST {{baseUrl}}/register
 Content-Type: {{contentType}}
 
 {
-  "user_id": "2",
-  "email": "jonas@jonera.com",
-  "pass": "123456"
+  "email": "jonas.jonas@example.com",
+  "password": "123456"
 }
 
 
 
 ### ATUALIZAR USUÁRIO
 # Atualiza os dados de um usuário existente
-PUT {{baseUrl}}/register
+PUT {{baseUrl}}/login/4
 Content-Type: {{contentType}}
 
 {
-  "email": "jonas@joner.com",
-  "pass": "ovaSenhoee"
+  "email": "jonas.jonas@example.com",
+  "password": "voceegay"
 }
 
 ########TASKS#########
 
 ###CONSULTAR TASKS POR ID
-GET {{baseUrl}}/tasks
+GET {{baseUrl}}/tasks?user_id=1
 Content-Type: {{contentType}}
 
 

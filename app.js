@@ -35,19 +35,21 @@ app.get('/login', async (req, res) => {
 //Adicionando um novo login
 
 app.post('/register', async (req, res) => {
-    const { email, pass } = req.body;
+    const { email, password } = req.body;
 
-    if (!email && !pass) {
+    if (!email && !password) {
         return res.status(400).json({ error: 'É necessário preencher todos os campos!' });
     }
-
-    const loginExist = await execSQLQuery('SELECT * FROM users WHERE email=' + email);
-
-    if (!loginExist.length) {
+    console.log(email);
+    const loginExist = await execSQLQuery(`SELECT * FROM users WHERE email='${email}'`);
+    if (loginExist.length) {
         return res.status(400).json({ error: 'E-mail já cadastrado!' });
+        console.log("email existe"+ email);
+        
     }
+        console.log("email nao existe"+email);
 
-    await execSQLQuery(`INSERT INTO users(email, pass) VALUES('${email}','${pass}')`)
+    await execSQLQuery(`INSERT INTO users(email, password) VALUES('${email}','${password}')`)
 
     res.status(200).json({ message: 'Dados de login inseridos!' });
 });
@@ -57,9 +59,9 @@ app.post('/register', async (req, res) => {
 
 app.get('/login', async (req, res) => {
 
-    const { email, pass } = req.body;
+    const { email, password } = req.body;
 
-    const userExist = await execSQLQuery(`SELECT * FROM user WHERE id=${id} AND email=${email} AND pass=${pass}`);
+    const userExist = await execSQLQuery(`SELECT * FROM user WHERE id=${id} AND email=${email} AND password=${password}`);
 
     if (!userExist.length) {
 
@@ -73,8 +75,8 @@ app.get('/login', async (req, res) => {
 //Trocar de senha de login
 
 app.put('/login/:id', async (req, res) => {
-    const id = req.params;
-    const { email, newPass } = req.body;
+    const id = req.params.id;
+    const { email, password } = req.body;
 
     if (!id) {
 
@@ -88,14 +90,14 @@ app.put('/login/:id', async (req, res) => {
         return res.status(400).json({ error: 'ID não encontrado!' });
 
     }
-    const userExist = await execSQLQuery(`SELECT * FROM users WHERE id=${id} AND email=${email}`);
+    const userExist = await execSQLQuery(`SELECT * FROM users WHERE id=${id} AND email='${email}'`);
 
     if (!userExist.length) {
 
         return res.status(400).json({ error: 'Email não encontrado!' })
     }
 
-    await execSQLQuery(`UPDATE users SET pass= ${newPass} WHERE id=${id}`);
+    await execSQLQuery(`UPDATE users SET password= '${password}' WHERE id=${id}`);
 
     return res.status(200).json({ message: 'Senha atualizada!' });
 });
